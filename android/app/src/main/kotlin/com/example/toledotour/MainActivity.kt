@@ -1,6 +1,4 @@
-package com.example.toledotour
-
+// MainActivity.kt
+package your.package.name
 import io.flutter.embedding.android.FlutterActivity
-
-class MainActivity : FlutterActivity() {
-}
+class MainActivity : FlutterActivity()
