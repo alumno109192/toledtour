@@ -50,15 +50,15 @@ jobs:
   build-ios:
     name: Build & Test iOS
     runs-on: macos-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Flutter
+      - name: Set up Flutter (3.29.3)
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.6'  # Versión actualizada
+          flutter-version: '3.29.3'  # Versión actualizada
           channel: 'stable'
 
       - name: Install dependencies
