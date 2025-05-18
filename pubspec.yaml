@@ -1,17 +1,18 @@
 name: toledotour
+version: 1.0.0+1
 
 environment:
-  sdk: ">=2.18.2 <3.0.0"  # Ajusta para coincidir con Flutter 3.3.4
+  sdk: ">=3.3.0 <4.0.0"  # Requiere Dart 3.3.0+
 
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  google_maps_flutter: ^2.6.1
-  location: ^5.0.3
-  flutter_plugin_android_lifecycle: ^2.0.19  # Requerido para V2 embedding
+  google_maps_flutter: ^2.12.2  # Versión actualizada
+  location: ^5.0.3  # Nueva versión compatible
+  flutter_plugin_android_lifecycle: ^2.0.19
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.1  # Versión compatible con Dart 2.18
+  flutter_lints: ^5.0.0  # Versión para Dart 3
