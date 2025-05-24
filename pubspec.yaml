@@ -11,6 +11,8 @@ dependencies:
   google_maps_flutter: ^2.12.2  # Versión actualizada
   location: ^5.0.3  # Nueva versión compatible
   flutter_plugin_android_lifecycle: ^2.0.19
+  url_launcher: ^6.3.1
+  webview_flutter: ^4.13.0
 
 dev_dependencies:
   flutter_test:

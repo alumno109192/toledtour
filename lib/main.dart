@@ -94,9 +94,8 @@ class TourismOptionsCardView extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder:
-                          (context) => (option['route']
-                              as Widget Function(BuildContext))(context),
+                      builder: (context) => (option['route'] as Widget Function(
+                          BuildContext))(context),
                     ),
                   );
                 } else {

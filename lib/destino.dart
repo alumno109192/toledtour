@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 class DestinoPage extends StatefulWidget {
   final String title;
@@ -29,20 +32,50 @@ class DestinoPage extends StatefulWidget {
 class _DestinoPageState extends State<DestinoPage> {
   LocationData? _currentLocation;
   final Location _location = Location();
-
-  // Ejemplo: Coordenadas de la Mezquita del Cristo de la Luz
-  // Puedes adaptar esto para cada destino si tienes las coordenadas.
   late LatLng _destinoLatLng;
+  late final WebViewController _webViewController;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _setDestinoLatLng();
+    _initializeWebViewController();
     _getUserLocation();
   }
 
+  void _initializeWebViewController() {
+    final lat = _destinoLatLng.latitude;
+    final lng = _destinoLatLng.longitude;
+    final directionsUrl =
+        'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng';
+
+    if (WebViewPlatform.instance is WebKitWebViewPlatform) {
+      _webViewController = WebViewController()
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..setNavigationDelegate(NavigationDelegate(
+          onPageStarted: (url) => setState(() => _isLoading = true),
+          onPageFinished: (url) => setState(() => _isLoading = false),
+        ))
+        ..loadRequest(Uri.parse(directionsUrl));
+    } else {
+      _webViewController = WebViewController()
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..setNavigationDelegate(NavigationDelegate(
+          onPageStarted: (url) => setState(() => _isLoading = true),
+          onPageFinished: (url) => setState(() => _isLoading = false),
+        ))
+        ..loadRequest(Uri.parse(directionsUrl));
+    }
+
+    if (_webViewController.platform is AndroidWebViewController) {
+      AndroidWebViewController.enableDebugging(true);
+      (_webViewController.platform as AndroidWebViewController)
+          .setMediaPlaybackRequiresUserGesture(false);
+    }
+  }
+
   void _setDestinoLatLng() {
-    // Puedes mejorar esto con un mapa de coordenadas por destino.
     if (widget.title == 'Mezquita del Cristo de la Luz') {
       _destinoLatLng = const LatLng(39.8622, -4.0246);
     } else if (widget.title == 'Museo de Santa Cruz') {
@@ -56,7 +89,6 @@ class _DestinoPageState extends State<DestinoPage> {
     } else if (widget.title == 'Museo Sefardí') {
       _destinoLatLng = const LatLng(39.8551, -4.0297);
     } else {
-      // Coordenadas por defecto (Toledo centro)
       _destinoLatLng = const LatLng(39.8628, -4.0273);
     }
   }
@@ -65,51 +97,31 @@ class _DestinoPageState extends State<DestinoPage> {
     final hasPermission = await _location.requestPermission();
     if (hasPermission == PermissionStatus.granted) {
       final loc = await _location.getLocation();
-      setState(() {
-        _currentLocation = loc;
-      });
+      setState(() => _currentLocation = loc);
     }
   }
 
-  Set<Marker> _buildMarkers() {
-    final markers = <Marker>{
-      Marker(
-        markerId: const MarkerId('destino'),
-        position: _destinoLatLng,
-        infoWindow: InfoWindow(title: widget.title),
-      ),
-    };
-    if (_currentLocation != null) {
-      markers.add(
-        Marker(
-          markerId: const MarkerId('usuario'),
-          position: LatLng(
-            _currentLocation!.latitude!,
-            _currentLocation!.longitude!,
+  void _openWebView() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          appBar: AppBar(
+            title: Text('Ruta a ${widget.title}'),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context),
+            ),
           ),
-          infoWindow: const InfoWindow(title: 'Tu ubicación'),
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueAzure,
+          body: Stack(
+            children: [
+              WebViewWidget(controller: _webViewController),
+              if (_isLoading) const Center(child: CircularProgressIndicator()),
+            ],
           ),
         ),
-      );
-    }
-    return markers;
-  }
-
-  Set<Polyline> _buildPolylines() {
-    if (_currentLocation == null) return {};
-    return {
-      Polyline(
-        polylineId: const PolylineId('ruta'),
-        color: Colors.blue,
-        width: 5,
-        points: [
-          LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!),
-          _destinoLatLng,
-        ],
       ),
-    };
+    );
   }
 
   @override
@@ -146,28 +158,14 @@ class _DestinoPageState extends State<DestinoPage> {
           const SizedBox(height: 16),
           Text(widget.extraInfo, style: const TextStyle(fontSize: 16)),
           const SizedBox(height: 24),
-          SizedBox(
-            height: 350,
-            child:
-                _currentLocation == null
-                    ? const Center(child: CircularProgressIndicator())
-                    : GoogleMap(
-                      initialCameraPosition: CameraPosition(
-                        target: LatLng(
-                          _currentLocation!.latitude!,
-                          _currentLocation!.longitude!,
-                        ),
-                        zoom: 15,
-                      ),
-                      markers: _buildMarkers(),
-                      polylines: _buildPolylines(),
-                      onMapCreated: (controller) {},
-                      myLocationButtonEnabled: true,
-                    ),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.directions),
+            label: const Text('Ver ruta en la app'),
+            onPressed: _openWebView,
           ),
           const SizedBox(height: 16),
           const Text(
-            'En el mapa puedes ver tu ubicación, la ubicación del destino y la ruta más corta entre ambos puntos.',
+            'Usa el mapa interactivo para ver las indicaciones de navegación',
             style: TextStyle(fontSize: 16),
           ),
         ],
