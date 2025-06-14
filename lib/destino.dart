@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
@@ -30,8 +29,6 @@ class DestinoPage extends StatefulWidget {
 }
 
 class _DestinoPageState extends State<DestinoPage> {
-  LocationData? _currentLocation;
-  final Location _location = Location();
   late LatLng _destinoLatLng;
   late final WebViewController _webViewController;
   bool _isLoading = true;
@@ -41,7 +38,6 @@ class _DestinoPageState extends State<DestinoPage> {
     super.initState();
     _setDestinoLatLng();
     _initializeWebViewController();
-    _getUserLocation();
   }
 
   void _initializeWebViewController() {
@@ -90,14 +86,6 @@ class _DestinoPageState extends State<DestinoPage> {
       _destinoLatLng = const LatLng(39.8551, -4.0297);
     } else {
       _destinoLatLng = const LatLng(39.8628, -4.0273);
-    }
-  }
-
-  Future<void> _getUserLocation() async {
-    final hasPermission = await _location.requestPermission();
-    if (hasPermission == PermissionStatus.granted) {
-      final loc = await _location.getLocation();
-      setState(() => _currentLocation = loc);
     }
   }
 
