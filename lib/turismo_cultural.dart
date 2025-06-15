@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:toledotour/l10n/strings.dart';
 import 'destino.dart';
+import 'icon_utils.dart';
+import 'ad_banner_widget.dart';
+import 'interstitial_ad_helper.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CulturalTourismPage extends StatelessWidget {
-  const CulturalTourismPage({super.key});
+  CulturalTourismPage({super.key});
+  final InterstitialAdHelper _adHelper = InterstitialAdHelper()..loadAd();
 
   @override
   Widget build(BuildContext context) {
     final culturalSites = [
       {
         'name': 'Mezquita del Cristo de la Luz',
-        'description': 'Una de las mezquitas mejor conservadas de la ciudad.',
-        'icon': Icons.account_balance,
+        'descriptionKey': 'cultural_cristo_desc',
+        'icon': 'account_balance',
         'address': 'Calle Cristo de la Luz, 22, 45003 Toledo',
         'schedule': '10:00 - 18:00',
         'price': '3€ (consultar descuentos y horarios actualizados)',
@@ -19,8 +25,8 @@ class CulturalTourismPage extends StatelessWidget {
       },
       {
         'name': 'Museo de Santa Cruz',
-        'description': 'Museo con arte y arqueología de Toledo.',
-        'icon': Icons.museum,
+        'descriptionKey': 'cultural_santacruz_desc',
+        'icon': 'museum',
         'address': 'Calle Miguel de Cervantes, 3, 45001 Toledo',
         'schedule':
             'Martes a sábado: 10:00 - 18:30\nDomingos y festivos: 9:00 - 15:00',
@@ -29,8 +35,8 @@ class CulturalTourismPage extends StatelessWidget {
       },
       {
         'name': 'Sinagoga de Santa María la Blanca',
-        'description': 'Antigua sinagoga convertida en iglesia.',
-        'icon': Icons.account_balance_wallet,
+        'descriptionKey': 'cultural_sinagoga_desc',
+        'icon': 'account_balance_wallet',
         'address': 'Calle de los Reyes Católicos, 4, 45002 Toledo',
         'schedule': '10:00 - 18:45',
         'price': '3€',
@@ -38,8 +44,8 @@ class CulturalTourismPage extends StatelessWidget {
       },
       {
         'name': 'Museo del Greco',
-        'description': 'Museo dedicado al pintor El Greco.',
-        'icon': Icons.brush,
+        'descriptionKey': 'cultural_greco_desc',
+        'icon': 'brush',
         'address': 'Paseo del Tránsito, s/n, 45002 Toledo',
         'schedule':
             'Martes a sábado: 9:30 - 18:30\nDomingos y festivos: 10:00 - 15:00',
@@ -48,8 +54,8 @@ class CulturalTourismPage extends StatelessWidget {
       },
       {
         'name': 'Mezquita de las Tornerías',
-        'description': 'Pequeña mezquita del siglo XI.',
-        'icon': Icons.account_balance,
+        'descriptionKey': 'cultural_tornerias_desc',
+        'icon': 'account_balance',
         'address': 'Calle Tornerías, 10, 45001 Toledo',
         'schedule': 'Consultar horarios',
         'price': 'Consultar',
@@ -57,8 +63,8 @@ class CulturalTourismPage extends StatelessWidget {
       },
       {
         'name': 'Museo Sefardí',
-        'description': 'Museo sobre la historia judía en Toledo.',
-        'icon': Icons.history_edu,
+        'descriptionKey': 'cultural_sefardi_desc',
+        'icon': 'history_edu',
         'address': 'Calle Samuel Levi, s/n, 45002 Toledo',
         'schedule':
             'Martes a sábado: 9:30 - 18:30\nDomingos y festivos: 10:00 - 15:00',
@@ -68,7 +74,7 @@ class CulturalTourismPage extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Turismo Cultural: Mezquitas y Museos')),
+      appBar: AppBar(title: Text(tr(context, 'cultural_tourism'))),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: culturalSites.length,
@@ -79,7 +85,7 @@ class CulturalTourismPage extends StatelessWidget {
             elevation: 3,
             child: ListTile(
               leading: Icon(
-                site['icon'] as IconData,
+                getIconData(site['icon'] as String),
                 size: 36,
                 color: Theme.of(context).colorScheme.primary,
               ),
@@ -87,21 +93,21 @@ class CulturalTourismPage extends StatelessWidget {
                 site['name'] as String,
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              subtitle: Text(site['description'] as String),
+              subtitle: Text(tr(context, site['descriptionKey'] as String)),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder:
-                        (context) => DestinoPage(
-                          title: site['name'] as String,
-                          description: site['description'] as String,
-                          icon: site['icon'] as IconData,
-                          address: site['address'] as String,
-                          schedule: site['schedule'] as String,
-                          price: site['price'] as String,
-                          extraInfo: site['extraInfo'] as String,
-                        ),
+                    builder: (context) => DestinoPage(
+                      title: site['name'] as String,
+                      description:
+                          tr(context, site['descriptionKey'] as String),
+                      icon: site['icon'] as String,
+                      address: site['address'] as String,
+                      schedule: site['schedule'] as String,
+                      price: site['price'] as String,
+                      extraInfo: site['extraInfo'] as String,
+                    ),
                   ),
                 );
               },
@@ -109,6 +115,21 @@ class CulturalTourismPage extends StatelessWidget {
           );
         },
       ),
+      bottomNavigationBar: const AdBannerWidget(),
     );
+  }
+
+  void _abrirGoogleMaps(BuildContext context, String direccion) {
+    _adHelper.showAd(onAdClosed: () async {
+      final url = Uri.encodeFull(
+          'https://www.google.com/maps/search/?api=1&query=$direccion');
+      if (await canLaunchUrl(Uri.parse(url))) {
+        await launchUrl(Uri.parse(url));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(tr(context, 'error_opening_maps'))),
+        );
+      }
+    });
   }
 }

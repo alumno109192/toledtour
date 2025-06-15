@@ -1,13 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:toledotour/gastronomia.dart';
+import 'package:toledotour/l10n/strings.dart';
 import 'package:toledotour/naturaleza.dart';
 import 'package:toledotour/nocturno.dart';
 import 'package:toledotour/turismo_cultural.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'ad_banner_widget.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await MobileAds.instance.initialize();
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => LocaleProvider(),
+      child: const MyApp(),
+    ),
+  );
+}
+
+class LocaleProvider extends ChangeNotifier {
+  Locale? _locale;
+  Locale? get locale => _locale;
+
+  void setLocale(Locale locale) {
+    _locale = locale;
+    notifyListeners();
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -15,13 +37,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localeProvider = Provider.of<LocaleProvider>(context);
     return MaterialApp(
       navigatorKey: navigatorKey,
-      title: 'Toledo Tour',
+      title: 'Toledo Tour', // No uses tr(context, ...) aquí
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const TourismOptionsPage(),
+      locale: localeProvider.locale,
+      supportedLocales: const [
+        Locale('es'),
+        Locale('en'),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      home: const LanguageSelectorPage(),
     );
   }
 }
@@ -32,7 +65,12 @@ class TourismOptionsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const TourismOptionsCardView();
+    return Column(
+      children: const [
+        Expanded(child: TourismOptionsCardView()),
+        AdBannerWidget(), // Banner fijo abajo
+      ],
+    );
   }
 }
 
@@ -43,34 +81,34 @@ class TourismOptionsCardView extends StatelessWidget {
   Widget build(BuildContext context) {
     final options = [
       {
-        'title': 'Turismo Cultural',
-        'description': 'Descubre la historia y el arte de Toledo.',
+        'titleKey': 'cultural_tourism',
+        'descriptionKey': 'cultural_tourism_desc',
         'icon': Icons.museum,
-        'route': (BuildContext context) => const CulturalTourismPage(),
+        'route': (BuildContext context) => CulturalTourismPage(),
       },
       {
-        'title': 'Turismo Gastronómico',
-        'description': 'Disfruta de la mejor comida local.',
+        'titleKey': 'gastronomy',
+        'descriptionKey': 'gastronomy_desc',
         'icon': Icons.restaurant,
-        'route': (BuildContext context) => const GastronomiaPage(),
+        'route': (BuildContext context) => GastronomiaPage(),
       },
       {
-        'title': 'Turismo de Naturaleza',
-        'description': 'Explora rutas y paisajes naturales.',
+        'titleKey': 'nature',
+        'descriptionKey': 'nature_desc',
         'icon': Icons.park,
-        'route': (BuildContext context) => const NaturalezaPage(),
+        'route': (BuildContext context) => NaturalezaPage(),
       },
       {
-        'title': 'Turismo Nocturno',
-        'description': 'Vive la magia de Toledo de noche.',
+        'titleKey': 'nightlife',
+        'descriptionKey': 'nightlife_desc',
         'icon': Icons.nightlife,
-        'route': (BuildContext context) => const NocturnoPage(),
+        'route': (BuildContext context) => NocturnoPage(),
       },
     ];
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Opciones de Turismo en Toledo'),
+        title: Text(tr(context, 'title')),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: ListView.builder(
@@ -88,10 +126,10 @@ class TourismOptionsCardView extends StatelessWidget {
                 color: Theme.of(context).colorScheme.primary,
               ),
               title: Text(
-                option['title'] as String,
+                tr(context, option['titleKey'] as String),
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              subtitle: Text(option['description'] as String),
+              subtitle: Text(tr(context, option['descriptionKey'] as String)),
               onTap: () {
                 if (option.containsKey('route')) {
                   Navigator.push(
@@ -104,7 +142,8 @@ class TourismOptionsCardView extends StatelessWidget {
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Seleccionaste: ${option['title']}'),
+                      content: Text(
+                          'Seleccionaste: ${tr(context, option['titleKey'] as String)}'),
                     ),
                   );
                 }
@@ -112,6 +151,51 @@ class TourismOptionsCardView extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class LanguageSelectorPage extends StatelessWidget {
+  const LanguageSelectorPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Selecciona idioma / Select language')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                Provider.of<LocaleProvider>(context, listen: false)
+                    .setLocale(const Locale('es'));
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const TourismOptionsPage(),
+                  ),
+                );
+              },
+              child: const Text('Español'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Provider.of<LocaleProvider>(context, listen: false)
+                    .setLocale(const Locale('en'));
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const TourismOptionsPage(),
+                  ),
+                );
+              },
+              child: const Text('English'),
+            ),
+          ],
+        ),
       ),
     );
   }

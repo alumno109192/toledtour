@@ -9,15 +9,19 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   google_maps_flutter: ^2.12.2  # Versión actualizada
-  location: ^5.0.3  # Nueva versión compatible
+  location: ^8.0.0  # Nueva versión compatible
   flutter_plugin_android_lifecycle: ^2.0.19
   url_launcher: ^6.3.1
   webview_flutter: ^4.13.0
   webview_flutter_wkwebview: ^3.22.0
   webview_flutter_android: ^4.7.0
-  geolocator: ^11.0.0
+  geolocator: ^14.0.1
+  flutter_localizations:
+    sdk: flutter
+  provider: ^6.1.2
+  google_mobile_ads: ^5.1.0  # Ads de Google para Flutter
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0  # Versión para Dart 3
+  flutter_lints: ^6.0.0  # Última versión para Dart 3

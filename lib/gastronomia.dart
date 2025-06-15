@@ -1,160 +1,157 @@
+import 'package:toledotour/l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:toledotour/main.dart';
+import 'icon_utils.dart';
+import 'ad_banner_widget.dart';
+import 'interstitial_ad_helper.dart';
 
 class GastronomiaPage extends StatelessWidget {
-  const GastronomiaPage({super.key});
+  GastronomiaPage({super.key});
+  final InterstitialAdHelper _adHelper = InterstitialAdHelper()..loadAd();
 
   @override
   Widget build(BuildContext context) {
     final restaurantes = [
       {
         'nombre': 'Restaurante Adolfo',
-        'descripcion': 'Cocina tradicional toledana con toques modernos.',
+        'descripcionKey': 'rest_adolfo_desc',
         'direccion': 'Calle Hombre de Palo, 7, 45001 Toledo',
-        'icon': Icons.restaurant,
+        'icon': 'restaurant',
       },
       {
         'nombre': 'La Orza',
-        'descripcion':
-            'Restaurante acogedor con cocina castellana y carta de vinos.',
+        'descripcionKey': 'rest_laorza_desc',
         'direccion': 'Calle Descalzos, 5, 45002 Toledo',
-        'icon': Icons.restaurant_menu,
+        'icon': 'restaurant_menu',
       },
       {
         'nombre': 'Restaurante Alfileritos 24',
-        'descripcion': 'Cocina de autor en un edificio histórico.',
+        'descripcionKey': 'rest_alfileritos_desc',
         'direccion': 'Calle Alfileritos, 24, 45003 Toledo',
-        'icon': Icons.dining,
+        'icon': 'dining',
       },
       {
         'nombre': 'Restaurante Venta de Aires',
-        'descripcion': 'El restaurante más antiguo de Castilla-La Mancha.',
+        'descripcionKey': 'rest_ventaaires_desc',
         'direccion': 'Calle de Toledo, 31, 45005 Toledo',
-        'icon': Icons.restaurant,
+        'icon': 'restaurant',
       },
       {
         'nombre': 'Restaurante La Ermita',
-        'descripcion': 'Cocina tradicional con vistas panorámicas.',
+        'descripcionKey': 'rest_ermita_desc',
         'direccion': 'Carretera de la Ermita, s/n, 45004 Toledo',
-        'icon': Icons.restaurant,
+        'icon': 'restaurant',
       },
       {
         'nombre': 'Restaurante La Clandestina de las Tendillas',
-        'descripcion': 'Cocina creativa y ambiente moderno.',
+        'descripcionKey': 'rest_clandestina_desc',
         'direccion': 'Calle Tendillas, 3, 45002 Toledo',
-        'icon': Icons.restaurant,
+        'icon': 'restaurant',
       },
       {
         'nombre': 'Restaurante Locum',
-        'descripcion': 'Cocina de autor en casa histórica.',
+        'descripcionKey': 'rest_locum_desc',
         'direccion': 'Calle Locum, 6, 45001 Toledo',
-        'icon': Icons.restaurant,
+        'icon': 'restaurant',
       },
       {
         'nombre': 'Restaurante La Fábrica de Harinas',
-        'descripcion': 'Cocina mediterránea en hotel boutique.',
+        'descripcionKey': 'rest_fabrica_desc',
         'direccion': 'Calle Real del Arrabal, 1, 45003 Toledo',
-        'icon': Icons.restaurant,
+        'icon': 'restaurant',
       },
       {
         'nombre': 'Restaurante El Albero',
-        'descripcion': 'Cocina manchega y carnes a la brasa.',
+        'descripcionKey': 'rest_albero_desc',
         'direccion': 'Calle Ronda Buenavista, 27, 45005 Toledo',
-        'icon': Icons.restaurant,
+        'icon': 'restaurant',
       },
       {
         'nombre': 'Restaurante La Cave',
-        'descripcion': 'Cocina internacional y tapas.',
+        'descripcionKey': 'rest_cave_desc',
         'direccion': 'Callejón de los Gatos, 1, 45001 Toledo',
-        'icon': Icons.restaurant,
+        'icon': 'restaurant',
       },
     ];
 
     final bares = [
       {
         'nombre': 'La Abadía',
-        'descripcion':
-            'Taberna típica con platos manchegos y cervezas artesanas.',
+        'descripcionKey': 'bar_abadia_desc',
         'direccion': 'Plaza de San Nicolás, 3, 45001 Toledo',
-        'icon': Icons.local_bar,
+        'icon': 'local_bar',
       },
       {
         'nombre': 'Taberna El Botero',
-        'descripcion': 'Tapas creativas y cócteles en un ambiente moderno.',
+        'descripcionKey': 'bar_botero_desc',
         'direccion': 'Calle de la Ciudad, 5, 45002 Toledo',
-        'icon': Icons.local_drink,
+        'icon': 'local_drink',
       },
       {
         'nombre': 'Cervecería El Trébol',
-        'descripcion': 'Famosa por sus carcamusas y cervezas propias.',
+        'descripcionKey': 'bar_trebol_desc',
         'direccion': 'Calle de Santa Fe, 1, 45001 Toledo',
-        'icon': Icons.sports_bar,
+        'icon': 'sports_bar',
       },
       {
         'nombre': 'La Malquerida',
-        'descripcion': 'Bar de tapas y raciones en el casco histórico.',
+        'descripcionKey': 'bar_malquerida_desc',
         'direccion': 'Calle Santa Leocadia, 6, 45002 Toledo',
-        'icon': Icons.fastfood,
+        'icon': 'fastfood',
       },
       {
         'nombre': 'Bar Ludeña',
-        'descripcion': 'Tradicional, famoso por sus carcamusas.',
+        'descripcionKey': 'bar_ludena_desc',
         'direccion': 'Plaza de la Magdalena, 10, 45001 Toledo',
-        'icon': Icons.local_bar,
+        'icon': 'local_bar',
       },
       {
         'nombre': 'Bar Skala',
-        'descripcion': 'Tapas y ambiente local.',
+        'descripcionKey': 'bar_skala_desc',
         'direccion': 'Calle de la Sillería, 13, 45001 Toledo',
-        'icon': Icons.local_bar,
+        'icon': 'local_bar',
       },
       {
         'nombre': 'Bar El Pez',
-        'descripcion': 'Tapas y copas en ambiente alternativo.',
+        'descripcionKey': 'bar_elpez_desc',
         'direccion': 'Callejón de Menores, 6, 45001 Toledo',
-        'icon': Icons.local_bar,
+        'icon': 'local_bar',
       },
       {
         'nombre': 'Bar El Foro',
-        'descripcion': 'Tapas variadas y terraza.',
+        'descripcionKey': 'bar_elforo_desc',
         'direccion': 'Calle Cardenal Cisneros, 12, 45001 Toledo',
-        'icon': Icons.local_bar,
+        'icon': 'local_bar',
       },
       {
         'nombre': 'Bar El Rincón de Juan',
-        'descripcion': 'Tapas y vinos.',
+        'descripcionKey': 'bar_rinconjuan_desc',
         'direccion': 'Calle de la Merced, 6, 45002 Toledo',
-        'icon': Icons.local_bar,
+        'icon': 'local_bar',
       },
       {
         'nombre': 'Bar La Tabernita',
-        'descripcion': 'Tapas y ambiente acogedor.',
+        'descripcionKey': 'bar_tabernita_desc',
         'direccion': 'Calle de la Plata, 8, 45001 Toledo',
-        'icon': Icons.local_bar,
+        'icon': 'local_bar',
       },
     ];
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Bares y Restaurantes de Toledo'),
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Restaurantes', icon: Icon(Icons.restaurant)),
-              Tab(text: 'Bares', icon: Icon(Icons.local_bar)),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          children: [
-            _buildList(restaurantes, context),
-            _buildList(bares, context),
-          ],
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(tr(context, 'gastronomy')),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          _buildList(restaurantes, context),
+          _buildList(bares, context),
+        ],
+      ),
+      bottomNavigationBar: const AdBannerWidget(),
     );
   }
 
@@ -169,7 +166,7 @@ class GastronomiaPage extends StatelessWidget {
           elevation: 3,
           child: ListTile(
             leading: Icon(
-              lugar['icon'] as IconData,
+              getIconData(lugar['icon'] as String),
               size: 36,
               color: Theme.of(context).colorScheme.primary,
             ),
@@ -177,7 +174,8 @@ class GastronomiaPage extends StatelessWidget {
               lugar['nombre'] as String,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: Text('${lugar['descripcion']}\n${lugar['direccion']}'),
+            subtitle: Text(
+                '${tr(context, lugar['descripcionKey'] as String)}\n${lugar['direccion'] as String}'),
             isThreeLine: true,
             onTap: () => _showLugarDialog(context, lugar),
           ),
@@ -191,21 +189,28 @@ class GastronomiaPage extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(lugar['nombre'] as String),
+          title: Row(
+            children: [
+              Icon(getIconData(lugar['icon'] as String),
+                  color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 8),
+              Text(lugar['nombre'] as String),
+            ],
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(lugar['descripcion'] as String),
+              Text(tr(context, lugar['descripcionKey'] as String)),
               const SizedBox(height: 8),
               Text(lugar['direccion'] as String),
               const SizedBox(height: 16),
               ElevatedButton.icon(
                 icon: const Icon(Icons.directions),
-                label: const Text('Cómo llegar'),
+                label: Text(tr(context, 'how_to_get')),
                 onPressed: () async {
                   Navigator.of(context).pop();
-                  await _navigateToLugar(context, lugar['direccion'] as String);
+                  await _navigateToLugar(lugar['direccion'] as String, context);
                 },
               ),
             ],
@@ -215,8 +220,9 @@ class GastronomiaPage extends StatelessWidget {
     );
   }
 
-  Future<void> _navigateToLugar(
-      BuildContext context, String destinoDireccion) async {
+  Future<void> _navigateToLugar(String destinoDireccion,
+      [BuildContext? context]) async {
+    final ctx = context ?? navigatorKey.currentContext!;
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
@@ -228,18 +234,18 @@ class GastronomiaPage extends StatelessWidget {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
           _showErrorDialog(
-            context,
-            'Permiso de ubicación denegado',
-            'Para usar la navegación necesitas conceder el permiso de ubicación en los ajustes del dispositivo.',
+            tr(ctx, 'permission_denied'),
+            tr(ctx, 'location_needed'),
+            ctx,
           );
           return;
         }
       }
       if (permission == LocationPermission.deniedForever) {
         _showErrorDialog(
-          context,
-          'Permiso de ubicación denegado permanentemente',
-          'Debes habilitar el permiso de ubicación desde los ajustes del dispositivo para usar esta función.',
+          tr(ctx, 'permission_denied'),
+          tr(ctx, 'permission_denied_permanently'),
+          ctx,
         );
         return;
       }
@@ -253,15 +259,14 @@ class GastronomiaPage extends StatelessWidget {
       }
     } catch (e) {
       _showErrorDialog(
-        context,
-        'Error de localización',
-        'No se pudo obtener tu ubicación actual. Intenta de nuevo o revisa los permisos.',
+        tr(ctx, 'navigation_error'),
+        tr(ctx, 'error'),
+        ctx,
       );
     }
   }
 
-  void _showErrorDialog(BuildContext context, String title, String message) {
-    // Usar navigatorKey global si es necesario, aquí se asume contexto disponible
+  void _showErrorDialog(String title, String message, BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -270,10 +275,24 @@ class GastronomiaPage extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cerrar'),
+            child: Text(tr(context, 'close')),
           ),
         ],
       ),
     );
+  }
+
+  void _abrirGoogleMaps(BuildContext context, String direccion) {
+    _adHelper.showAd(onAdClosed: () async {
+      final url = Uri.encodeFull(
+          'https://www.google.com/maps/search/?api=1&query=$direccion');
+      if (await canLaunchUrl(Uri.parse(url))) {
+        await launchUrl(Uri.parse(url));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(tr(context, 'error_opening_maps'))),
+        );
+      }
+    });
   }
 }

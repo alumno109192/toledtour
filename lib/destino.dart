@@ -3,11 +3,13 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'icon_utils.dart';
 
 class DestinoPage extends StatefulWidget {
   final String title;
   final String description;
-  final IconData icon;
+  final String icon;
   final String address;
   final String schedule;
   final String price;
@@ -31,7 +33,6 @@ class DestinoPage extends StatefulWidget {
 class _DestinoPageState extends State<DestinoPage> {
   late LatLng _destinoLatLng;
   late final WebViewController _webViewController;
-  bool _isLoading = true;
 
   @override
   void initState() {
@@ -50,16 +51,16 @@ class _DestinoPageState extends State<DestinoPage> {
       _webViewController = WebViewController()
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
         ..setNavigationDelegate(NavigationDelegate(
-          onPageStarted: (url) => setState(() => _isLoading = true),
-          onPageFinished: (url) => setState(() => _isLoading = false),
+          onPageStarted: (url) => setState(() {}),
+          onPageFinished: (url) => setState(() {}),
         ))
         ..loadRequest(Uri.parse(directionsUrl));
     } else {
       _webViewController = WebViewController()
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
         ..setNavigationDelegate(NavigationDelegate(
-          onPageStarted: (url) => setState(() => _isLoading = true),
-          onPageFinished: (url) => setState(() => _isLoading = false),
+          onPageStarted: (url) => setState(() {}),
+          onPageFinished: (url) => setState(() {}),
         ))
         ..loadRequest(Uri.parse(directionsUrl));
     }
@@ -89,29 +90,6 @@ class _DestinoPageState extends State<DestinoPage> {
     }
   }
 
-  void _openWebView() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Scaffold(
-          appBar: AppBar(
-            title: Text('Ruta a ${widget.title}'),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
-          body: Stack(
-            children: [
-              WebViewWidget(controller: _webViewController),
-              if (_isLoading) const Center(child: CircularProgressIndicator()),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,7 +98,7 @@ class _DestinoPageState extends State<DestinoPage> {
         padding: const EdgeInsets.all(16),
         children: [
           Icon(
-            widget.icon,
+            getIconData(widget.icon),
             size: 60,
             color: Theme.of(context).colorScheme.primary,
           ),
@@ -149,7 +127,14 @@ class _DestinoPageState extends State<DestinoPage> {
           ElevatedButton.icon(
             icon: const Icon(Icons.directions),
             label: const Text('Ver ruta en la app'),
-            onPressed: _openWebView,
+            onPressed: () {
+              final address = widget.address;
+              final query = Uri.encodeComponent(address);
+              final url =
+                  'https://www.google.com/maps/search/?api=1&query=$query';
+              // ignore: deprecated_member_use
+              launchUrl(Uri.parse(url));
+            },
           ),
           const SizedBox(height: 16),
           const Text(

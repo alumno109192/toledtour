@@ -1,97 +1,131 @@
 import 'package:flutter/material.dart';
+import 'package:toledotour/l10n/strings.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'icon_utils.dart';
+import 'ad_banner_widget.dart';
+import 'interstitial_ad_helper.dart';
 
 class NocturnoPage extends StatelessWidget {
-  const NocturnoPage({super.key});
+  NocturnoPage({super.key});
+  final InterstitialAdHelper _adHelper = InterstitialAdHelper()..loadAd();
 
   @override
   Widget build(BuildContext context) {
     final actividadesNocturnas = [
       {
         'nombre': 'Ruta Nocturna por el Toledo Mágico',
-        'descripcion':
-            'Excursión guiada por las leyendas y misterios de la ciudad iluminada.',
+        'descripcionKey': 'noche_magico_desc',
         'direccion': 'Punto de encuentro: Plaza de Zocodover',
-        'icon': Icons.nightlight_round,
+        'icon': 'nightlight_round',
       },
       {
         'nombre': 'Tour de Fantasmas y Misterios',
-        'descripcion':
-            'Recorrido nocturno por los rincones más enigmáticos de Toledo.',
+        'descripcionKey': 'noche_fantasmas_desc',
         'direccion': 'Punto de encuentro: Plaza del Ayuntamiento',
-        'icon': Icons.emoji_objects,
+        'icon': 'emoji_objects',
       },
       {
         'nombre': 'Discoteca Circulo de Arte',
-        'descripcion':
-            'Discoteca ubicada en una antigua iglesia, ambiente único y música variada.',
+        'descripcionKey': 'noche_circulo_desc',
         'direccion': 'Plaza de San Vicente, 2, 45001 Toledo',
-        'icon': Icons.music_note,
+        'icon': 'music_note',
       },
       {
         'nombre': 'Sala Pícaro',
-        'descripcion':
-            'Sala de conciertos y club nocturno con programación cultural.',
+        'descripcionKey': 'noche_picaro_desc',
         'direccion': 'Calle Cadenas, 6, 45001 Toledo',
-        'icon': Icons.theater_comedy,
+        'icon': 'theater_comedy',
       },
       {
         'nombre': 'La Nuit Toledo',
-        'descripcion': 'Discoteca moderna con DJs y fiestas temáticas.',
+        'descripcionKey': 'noche_nuit_desc',
         'direccion': 'Calle Río Jarama, 120, 45007 Toledo',
-        'icon': Icons.nightlife,
+        'icon': 'nightlife',
       },
       {
         'nombre': 'Salón de Baile El Candil',
-        'descripcion': 'Salón de baile con clases y música en vivo.',
+        'descripcionKey': 'noche_candil_desc',
         'direccion': 'Calle de la Plata, 12, 45001 Toledo',
-        'icon': Icons.music_note,
+        'icon': 'music_note',
       },
       {
         'nombre': 'Pub El Ultimo',
-        'descripcion': 'Pub con ambiente alternativo y música indie.',
+        'descripcionKey': 'noche_ultimo_desc',
         'direccion': 'Calle Alfileritos, 3, 45003 Toledo',
-        'icon': Icons.local_bar,
+        'icon': 'local_bar',
       },
       {
         'nombre': 'Excursión Toledo de Leyenda',
-        'descripcion':
-            'Paseo nocturno por los lugares más legendarios de la ciudad.',
+        'descripcionKey': 'noche_leyenda_desc',
         'direccion': 'Punto de encuentro: Plaza de Zocodover',
-        'icon': Icons.tour,
+        'icon': 'tour',
       },
     ];
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Excursiones Nocturnas y Ocio en Toledo'),
+        title: Text(tr(context, 'nightlife')),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: ListView.builder(
+      body: ListView(
         padding: const EdgeInsets.all(16),
-        itemCount: actividadesNocturnas.length,
-        itemBuilder: (context, index) {
-          final actividad = actividadesNocturnas[index];
-          return Card(
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            elevation: 3,
-            child: ListTile(
-              leading: Icon(
-                actividad['icon'] as IconData,
-                size: 36,
-                color: Theme.of(context).colorScheme.primary,
+        children: [
+          for (var actividad in actividadesNocturnas)
+            Card(
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              elevation: 3,
+              child: ListTile(
+                leading: Icon(
+                  getIconData(actividad['icon'] as String),
+                  size: 36,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: Text(
+                  actividad['nombre'] as String,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${tr(context, actividad['descripcionKey'] as String)}\n${actividad['direccion'] as String}',
+                    ),
+                    const SizedBox(height: 8),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        final direccion = actividad['direccion'] as String;
+                        _abrirGoogleMaps(context, direccion);
+                      },
+                      icon: const Icon(Icons.directions),
+                      label: Text(tr(context, 'como_llegar')),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Colors.white,
+                        textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+                isThreeLine: true,
               ),
-              title: Text(
-                actividad['nombre'] as String,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text(
-                '${actividad['descripcion']}\n${actividad['direccion']}',
-              ),
-              isThreeLine: true,
             ),
-          );
-        },
+        ],
       ),
+      bottomNavigationBar: const AdBannerWidget(),
     );
+  }
+
+  void _abrirGoogleMaps(BuildContext context, String direccion) {
+    _adHelper.showAd(onAdClosed: () async {
+      final url = Uri.encodeFull(
+          'https://www.google.com/maps/search/?api=1&query=$direccion');
+      if (await canLaunchUrl(Uri.parse(url))) {
+        await launchUrl(Uri.parse(url));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(tr(context, 'error_opening_maps'))),
+        );
+      }
+    });
   }
 }
