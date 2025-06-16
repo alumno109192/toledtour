@@ -5,6 +5,7 @@ import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'icon_utils.dart';
+import 'interstitial_ad_helper.dart';
 
 class DestinoPage extends StatefulWidget {
   final String title;
@@ -33,6 +34,7 @@ class DestinoPage extends StatefulWidget {
 class _DestinoPageState extends State<DestinoPage> {
   late LatLng _destinoLatLng;
   late final WebViewController _webViewController;
+  final InterstitialAdHelper _adHelper = InterstitialAdHelper()..loadAd();
 
   @override
   void initState() {
@@ -132,8 +134,9 @@ class _DestinoPageState extends State<DestinoPage> {
               final query = Uri.encodeComponent(address);
               final url =
                   'https://www.google.com/maps/search/?api=1&query=$query';
-              // ignore: deprecated_member_use
-              launchUrl(Uri.parse(url));
+              _adHelper.showAd(onAdClosed: () {
+                launchUrl(Uri.parse(url));
+              });
             },
           ),
           const SizedBox(height: 16),

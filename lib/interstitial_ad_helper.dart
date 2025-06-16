@@ -8,7 +8,7 @@ class InterstitialAdHelper {
   void loadAd({Function()? onLoaded}) {
     InterstitialAd.load(
       adUnitId:
-          'ca-app-pub-3940256099942544/1033173712', // ID de prueba oficial
+          'ca-app-pub-3765163856747312/1642809566', // ID real de intersticial de producción
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
