@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class InterstitialAdHelper {
@@ -7,8 +7,9 @@ class InterstitialAdHelper {
 
   void loadAd({Function()? onLoaded}) {
     InterstitialAd.load(
-      adUnitId:
-          'ca-app-pub-3765163856747312/1642809566', // ID real de intersticial de producción
+      adUnitId: kDebugMode
+          ? 'ca-app-pub-3940256099942544/1033173712' // ID de prueba intersticial
+          : 'ca-app-pub-3765163856747312/1642809566', // ID real intersticial
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {

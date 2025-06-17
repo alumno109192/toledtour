@@ -18,6 +18,9 @@
             </intent-filter>
         </activity>
         <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3765163856747312~8073288879"/>
+        <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
         <meta-data

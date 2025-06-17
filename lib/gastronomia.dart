@@ -139,19 +139,27 @@ class GastronomiaPage extends StatelessWidget {
       },
     ];
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(tr(context, 'gastronomy')),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(tr(context, 'gastronomy')),
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          bottom: TabBar(
+            tabs: [
+              Tab(text: tr(context, 'restaurants')),
+              Tab(text: tr(context, 'bars')),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            _buildList(restaurantes, context),
+            _buildList(bares, context),
+          ],
+        ),
+        bottomNavigationBar: const AdBannerWidget(),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _buildList(restaurantes, context),
-          _buildList(bares, context),
-        ],
-      ),
-      bottomNavigationBar: const AdBannerWidget(),
     );
   }
 
@@ -159,6 +167,8 @@ class GastronomiaPage extends StatelessWidget {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: lugares.length,
+      shrinkWrap: true, // Soluciona el problema de altura ilimitada
+      physics: const NeverScrollableScrollPhysics(), // Evita scroll anidado
       itemBuilder: (context, index) {
         final lugar = lugares[index];
         return Card(
